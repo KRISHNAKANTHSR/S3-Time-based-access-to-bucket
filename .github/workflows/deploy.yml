@@ -1,0 +1,30 @@
+name: Deploy to k3s
+
+on:
+  push:
+    branches:
+      - main  # Triggers on push to main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Install kubectl
+      run: |
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        chmod +x kubectl
+        sudo mv kubectl /usr/local/bin/
+
+    - name: Setup kubeconfig
+      run: |
+        echo "${{ secrets.KUBECONFIG }}" > kubeconfig.yaml
+        export KUBECONFIG=$(pwd)/kubeconfig.yaml
+
+    - name: Deploy Nginx Application
+      run: |
+        kubectl apply -f hello-world.yaml
+        kubectl rollout status deployment/hello-world
