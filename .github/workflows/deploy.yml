@@ -33,5 +33,8 @@ jobs:
         
     - name: Deploy Nginx Application
       run: |
+        export KUBECONFIG=$(pwd)/kubeconfig.yaml
+        kubectl config view
+        kubectl cluster-info
         kubectl apply -f hello-world.yaml
-        kubectl rollout status deployment/hello-world || kubectl describe deployment hello-world  # Debugging in case of failure
+        kubectl get pods -A
