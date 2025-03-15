@@ -30,12 +30,8 @@ jobs:
       run: |
         echo "${{ secrets.KUBECONFIG }}" > kubeconfig.yaml
         export KUBECONFIG=$(pwd)/kubeconfig.yaml
-        kubectl config view  # Debugging: Check kubeconfig is correctly loaded
-        kubectl cluster-info  # Debugging: Ensure the cluster is accessible
-
+        
     - name: Deploy Nginx Application
       run: |
-        export KUBECONFIG=$(pwd)/kubeconfig.yaml
         kubectl apply -f hello-world.yaml
-        kubectl get all -n default  # Debugging: List all resources after applying
         kubectl rollout status deployment/hello-world || kubectl describe deployment hello-world  # Debugging in case of failure
