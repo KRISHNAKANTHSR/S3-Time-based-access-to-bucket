@@ -1,31 +1,34 @@
-name: Deploy to K3s
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-world
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hello-world
+  template:
+    metadata:
+      labels:
+        app: hello-world
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
 
-on:
-  push:
-    branches:
-      - main  # Triggers when changes are pushed to the main branch
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
-
-    - name: Set up Kubectl
-      uses: azure/setup-kubectl@v3
-      with:
-        version: "latest"
-
-    - name: Configure Kubeconfig
-      run: |
-        echo "$KUBECONFIG" > kubeconfig.yaml
-        export KUBECONFIG=$PWD/kubeconfig.yaml
-      env:
-        KUBECONFIG: ${{ secrets.KUBECONFIG }}
-
-    - name: Deploy to K3s
-      run: |
-        kubectl apply -f hello-world.yaml
-        kubectl rollout status deployment/hello-world
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-world-service
+spec:
+  selector:
+    app: hello-world
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 30045
+  type: NodePort
