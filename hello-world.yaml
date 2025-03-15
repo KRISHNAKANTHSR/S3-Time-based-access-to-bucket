@@ -1,0 +1,31 @@
+name: Deploy to K3s
+
+on:
+  push:
+    branches:
+      - main  # Triggers when changes are pushed to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: "latest"
+
+    - name: Configure Kubeconfig
+      run: |
+        echo "$KUBECONFIG" > kubeconfig.yaml
+        export KUBECONFIG=$PWD/kubeconfig.yaml
+      env:
+        KUBECONFIG: ${{ secrets.KUBECONFIG }}
+
+    - name: Deploy to K3s
+      run: |
+        kubectl apply -f hello-world.yaml
+        kubectl rollout status deployment/hello-world
