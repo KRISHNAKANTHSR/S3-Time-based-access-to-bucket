@@ -35,4 +35,3 @@ jobs:
       run: |
         export KUBECONFIG=$(pwd)/kubeconfig.yaml
         kubectl apply -f hello-world.yaml --validate=false
-        kubectl get pods -A
